@@ -90,3 +90,87 @@ A subquery that references columns from the outer query. It executes once for ea
 - **Correlated subqueries** can be slower for large datasets as they execute repeatedly
 - Consider using JOINs with GROUP BY as an alternative for better performance
 - Always test query performance with EXPLAIN to understand execution plans
+### aggregations_and_window_functions.sql
+Contains SQL queries demonstrating aggregations and window functions:
+- **COUNT with GROUP BY**: Total bookings per user
+- **ROW_NUMBER**: Unique sequential ranking of properties
+- **RANK**: Ranking with tied values and gap handling
+- **DENSE_RANK**: Ranking with tied values and no gaps
+- **PARTITION BY**: Ranking within groups (bonus example)
+
+## Aggregation Functions
+
+Aggregation functions perform calculations on a set of values and return a single value.
+
+### Common Aggregate Functions:
+- **COUNT()**: Counts the number of rows
+- **SUM()**: Calculates the total sum
+- **AVG()**: Calculates the average value
+- **MIN()**: Finds the minimum value
+- **MAX()**: Finds the maximum value
+
+### GROUP BY Clause
+Groups rows that have the same values in specified columns into summary rows. Always used with aggregate functions.
+
+**Example**: Count bookings per user
+```sql
+SELECT user_id, COUNT(booking_id) 
+FROM Booking 
+GROUP BY user_id;
+```
+
+## Window Functions
+
+Window functions perform calculations across a set of rows related to the current row, without collapsing the result into a single row (unlike aggregate functions with GROUP BY).
+
+### Key Window Functions:
+
+#### ROW_NUMBER()
+Assigns a unique sequential integer to each row within a partition.
+- Always returns unique values (1, 2, 3, 4...)
+- No ties allowed
+
+#### RANK()
+Assigns a rank to each row within a partition, with gaps for tied values.
+- Tied values get the same rank
+- Next rank skips numbers (1, 2, 2, 4, 5...)
+
+#### DENSE_RANK()
+Assigns a rank to each row within a partition, without gaps for tied values.
+- Tied values get the same rank
+- Next rank is consecutive (1, 2, 2, 3, 4...)
+
+### Window Function Syntax:
+```sql
+function_name() OVER (
+    [PARTITION BY column]
+    ORDER BY column [ASC|DESC]
+)
+```
+
+### PARTITION BY
+Divides the result set into partitions. Window function is applied to each partition independently.
+
+**Example**: Rank properties within each location
+```sql
+RANK() OVER (PARTITION BY location ORDER BY total_bookings DESC)
+```
+
+## When to Use Each
+
+### Use Aggregations (GROUP BY) when:
+- You need summary statistics
+- You want to collapse rows into groups
+- You need totals, averages, counts per group
+
+### Use Window Functions when:
+- You need to keep all detail rows
+- You want rankings or running totals
+- You need to compare each row to aggregate values
+- You want to partition data and analyze within groups
+
+## Performance Tips
+- Window functions can be resource-intensive on large datasets
+- Use appropriate indexes on columns in PARTITION BY and ORDER BY
+- Consider materialized views for frequently-run window function queries
+- Test performance with EXPLAIN ANALYZE
