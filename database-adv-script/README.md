@@ -56,3 +56,37 @@ Each query includes comments explaining:
 - Which join type is used
 - What data is being retrieved
 - Expected output columns
+### subqueries.sql
+Contains SQL queries demonstrating subqueries:
+- **Non-Correlated Subquery**: Finds properties with average rating > 4.0
+- **Correlated Subquery**: Finds users who have made more than 3 bookings
+- **Bonus queries**: Additional subquery examples
+
+## Subquery Types Explained
+
+### Non-Correlated Subquery
+A subquery that executes independently of the outer query. It runs once and returns results used by the outer query.
+
+**Characteristics**:
+- Executes only once
+- Can be run independently
+- Results are passed to outer query
+
+**Use Case**: When you need to filter based on aggregate data from another table (e.g., properties with average rating > 4.0).
+
+### Correlated Subquery
+A subquery that references columns from the outer query. It executes once for each row processed by the outer query.
+
+**Characteristics**:
+- Executes multiple times (once per outer query row)
+- Cannot run independently
+- References outer query columns
+
+**Use Case**: When you need row-by-row comparison (e.g., count bookings for each specific user).
+
+## Performance Considerations
+
+- **Non-correlated subqueries** are generally faster as they execute once
+- **Correlated subqueries** can be slower for large datasets as they execute repeatedly
+- Consider using JOINs with GROUP BY as an alternative for better performance
+- Always test query performance with EXPLAIN to understand execution plans
