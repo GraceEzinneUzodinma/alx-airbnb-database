@@ -174,3 +174,98 @@ RANK() OVER (PARTITION BY location ORDER BY total_bookings DESC)
 - Use appropriate indexes on columns in PARTITION BY and ORDER BY
 - Consider materialized views for frequently-run window function queries
 - Test performance with EXPLAIN ANALYZE
+### database_index.sql
+Contains SQL commands to create indexes for performance optimization:
+- Analysis of high-usage columns
+- CREATE INDEX statements for all major tables
+- Indexes on foreign keys, search columns, and frequently filtered fields
+- Composite indexes for common query patterns
+
+### index_performance.md
+Documents performance measurements before and after adding indexes:
+- EXPLAIN analysis for representative queries
+- Performance metrics comparison
+- Rows scanned reduction percentages
+- Best practices and trade-offs
+
+## Database Indexing
+
+### What is an Index?
+An index is a database structure that improves the speed of data retrieval operations. Think of it like a book index - instead of reading every page to find information, you look up the index to jump directly to the relevant pages.
+
+### When to Create Indexes
+
+Index columns that are frequently used in:
+- **WHERE clauses** - Filtering conditions
+- **JOIN conditions** - Foreign keys linking tables
+- **ORDER BY clauses** - Sorting operations
+- **GROUP BY clauses** - Aggregation operations
+
+### Types of Indexes
+
+#### Single-Column Index
+Index on one column.
+```sql
+CREATE INDEX idx_user_email ON User(email);
+```
+
+#### Composite Index
+Index on multiple columns (order matters).
+```sql
+CREATE INDEX idx_property_location_price ON Property(location, pricepernight);
+```
+
+#### Unique Index
+Ensures column values are unique (automatically created for PRIMARY KEY and UNIQUE constraints).
+```sql
+CREATE UNIQUE INDEX idx_user_email_unique ON User(email);
+```
+
+### Index Best Practices
+
+✅ **Do:**
+- Index foreign key columns
+- Index columns in WHERE and JOIN clauses
+- Create composite indexes for frequently combined columns
+- Monitor index usage and remove unused indexes
+- Use EXPLAIN to verify indexes are being used
+
+❌ **Don't:**
+- Over-index (too many indexes slow down writes)
+- Index low-cardinality columns (e.g., boolean with only true/false)
+- Index columns that are rarely queried
+- Forget to update indexes when query patterns change
+
+### Performance Measurement
+
+Use `EXPLAIN` to analyze query execution:
+```sql
+EXPLAIN SELECT * FROM Booking WHERE user_id = 'some-uuid';
+```
+
+Key metrics to watch:
+- **type**: ALL (bad - full scan) vs ref/range (good - index used)
+- **rows**: Number of rows examined
+- **key**: Which index is used (NULL means no index)
+- **Extra**: Additional operations (Using filesort, Using temporary, etc.)
+
+### Trade-offs
+
+**Benefits:**
+- ⚡ Faster SELECT queries
+- 📊 Improved JOIN performance
+- 🎯 Efficient filtering and sorting
+
+**Costs:**
+- 💾 Additional storage space
+- ⏱️ Slower INSERT/UPDATE/DELETE operations
+- 🔧 Index maintenance overhead
+
+### Maintenance
+
+Regularly review and optimize indexes:
+- Identify slow queries with slow query log
+- Analyze index usage with performance schema
+- Remove unused indexes
+- Rebuild fragmented indexes
+- Update statistics for query optimizer
